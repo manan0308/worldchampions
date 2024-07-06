@@ -1,12 +1,4 @@
-process.on('uncaughtException', (error) => {
-  console.error('Uncaught Exception:', error);
-  process.exit(1);
-});
-
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-  process.exit(1);
-});
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -16,18 +8,15 @@ const axios = require('axios');
 const path = require('path');
 const compression = require('compression');
 const rateLimit = require('express-rate-limit');
-const { performance } = require('perf_hooks');
-require('dotenv').config();
 
 const app = express();
-const cache = new NodeCache({ stdTTL: 3600 }); // Cache for 1 hour
+const cache = new NodeCache({ stdTTL: 3600, checkperiod: 120 });
 
 const allowedOrigins = ['http://localhost:3000', 'https://cricket-reels-27bad7c1686b.herokuapp.com'];
 
-// CORS configuration
 app.use(cors({
-  origin: function(origin, callback) {
-    if(!origin || allowedOrigins.indexOf(origin) !== -1) {
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
@@ -36,119 +25,98 @@ app.use(cors({
   credentials: true
 }));
 
-// Security headers
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://www.instagram.com"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", "data:", "https:"],
-      fontSrc: ["'self'", "data:"],
-      connectSrc: ["'self'", "https://cricket-reels-27bad7c1686b.herokuapp.com", "http://localhost:5002", "https://api.instagram.com"],
-      frameSrc: ["'self'", "https://www.instagram.com"]
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://www.instagram.com", "https://*.cdninstagram.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://www.instagram.com"],
+      imgSrc: ["'self'", "data:", "https:", "https://*.cdninstagram.com"],
+      fontSrc: ["'self'", "data:", "https://www.instagram.com"],
+      connectSrc: ["'self'", "https://cricket-reels-27bad7c1686b.herokuapp.com", "http://localhost:5002", "https://api.instagram.com", "https://*.cdninstagram.com"],
+      frameSrc: ["'self'", "https://www.instagram.com", "https://*.cdninstagram.com"],
+      mediaSrc: ["'self'", "https://*.cdninstagram.com"]
     }
   },
   crossOriginEmbedderPolicy: false
 }));
 
-// Compression
 app.use(compression());
-
-// Logging
-app.use(morgan('dev'));
-
-// JSON parsing
+app.use(morgan('combined'));
 app.use(express.json());
 
-// Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
 });
+
 app.use('/api/', limiter);
 
-// Video data
 const videos = [
-    { id: 1, url: 'https://www.instagram.com/reel/C8wdSflxpEB/', platform: 'instagram' },
-    { id: 2, url: 'https://www.instagram.com/reel/C8z8-McSV5T/', platform: 'instagram' },
-    { id: 3, url: 'https://www.instagram.com/reel/C80_wWOyNGT/', platform: 'instagram' },
-    { id: 4, url: 'https://www.instagram.com/reel/C8z74PJyES-/', platform: 'instagram' },
-    { id: 5, url: 'https://www.instagram.com/reel/C8z0F7CyxO6/', platform: 'instagram' },
-    { id: 6, url: 'https://www.instagram.com/reel/C8zq64uIDmQ/', platform: 'instagram' },
-    { id: 7, url: 'https://www.instagram.com/reel/C81HIudJ6Tl/', platform: 'instagram' }
+  { id: 1, url: 'https://www.instagram.com/reel/C8wdSflxpEB/', platform: 'instagram' },
+  { id: 2, url: 'https://www.instagram.com/reel/C8z8-McSV5T/', platform: 'instagram' },
+  { id: 3, url: 'https://www.instagram.com/reel/C80_wWOyNGT/', platform: 'instagram' },
+  { id: 4, url: 'https://www.instagram.com/reel/C8z74PJyES-/', platform: 'instagram' },
+  { id: 5, url: 'https://www.instagram.com/reel/C8z0F7CyxO6/', platform: 'instagram' },
+  { id: 6, url: 'https://www.instagram.com/reel/C8zq64uIDmQ/', platform: 'instagram' },
+  { id: 7, url: 'https://www.instagram.com/reel/C81HIudJ6Tl/', platform: 'instagram' },
+  { id: 8, url: 'https://www.instagram.com/reel/C81-sEWvS3f/', platform: 'instagram' },
+  { id: 9, url: 'https://www.instagram.com/reel/C8z9h0Qyl7A/', platform: 'instagram' },
+  { id: 10, url: 'https://www.instagram.com/reel/C80awOzy6qK/', platform: 'instagram' },
+  { id: 11, url: 'https://www.instagram.com/reel/C82CfTDijL-/', platform: 'instagram' },
+  { id: 12, url: 'https://www.instagram.com/reel/C8m2G_9SpMa/', platform: 'instagram' }
 ];
 
-// Optimized getOEmbedData function
-async function getOEmbedData(url) {
-  const cacheKey = `oembed_${url}`;
+async function getEmbedData(url) {
+  const cacheKey = `embed_${url}`;
   const cachedData = cache.get(cacheKey);
   if (cachedData) {
     console.log(`Cache hit for ${url}`);
     return cachedData;
   }
 
-  console.log(`Fetching oEmbed data for ${url}`);
+  console.log(`Generating embed data for ${url}`);
   try {
-    const response = await axios.get(`https://api.instagram.com/oembed/?url=${encodeURIComponent(url)}&maxwidth=658&hidecaption=true&omitscript=true`, {
-      timeout: 5000 // 5 second timeout
-    });
-    const oembedData = response.data;
-    
     const shortcode = url.split('/').slice(-2)[0];
+    const embedUrl = `https://www.instagram.com/p/${shortcode}/embed`;
     
-    const data = {
+    const embedData = {
       shortcode,
-      html: oembedData.html,
-      thumbnail_url: oembedData.thumbnail_url
+      html: `<iframe src="${embedUrl}" width="100%" height="100%" frameborder="0" scrolling="no" allowtransparency="true"></iframe>`,
     };
-    cache.set(cacheKey, data);
-    console.log(`oEmbed data fetched and cached for ${url}`);
-    return data;
+    
+    cache.set(cacheKey, embedData);
+    console.log(`Embed data generated and cached for ${url}`);
+    return embedData;
   } catch (error) {
-    console.error(`Error fetching oEmbed data for ${url}:`, error.message);
+    console.error(`Error generating embed data for ${url}:`, error.message);
     const shortcode = url.split('/').slice(-2)[0];
     console.log(`Returning fallback data with shortcode ${shortcode} for ${url}`);
     return { shortcode };
   }
 }
 
-// Profiling middleware
-const profileMiddleware = (req, res, next) => {
-  const start = performance.now();
-  res.on('finish', () => {
-    const duration = performance.now() - start;
-    console.log(`${req.method} ${req.originalUrl} - ${duration.toFixed(2)}ms`);
-  });
-  next();
-};
-
-app.use(profileMiddleware);
-
-// API routes
 app.get('/api/video', async (req, res) => {
   console.log('Received request for /api/video');
   try {
-    if (videos.length === 0) {
-      console.log('No videos available');
-      return res.status(404).json({ error: 'No videos available' });
-    }
+    const videoIndex = parseInt(req.query.index) || 0;
+    const video = videos[videoIndex] || videos[Math.floor(Math.random() * videos.length)];
+    console.log('Selected video:', video);
 
-    const randomVideo = videos[Math.floor(Math.random() * videos.length)];
-    console.log('Selected video:', randomVideo);
-
-    if (!randomVideo || !randomVideo.url) {
+    if (!video || !video.url) {
       console.log('Invalid video data');
       return res.status(500).json({ error: 'Invalid video data' });
     }
 
-    const oembedData = await getOEmbedData(randomVideo.url);
+    const embedData = await getEmbedData(video.url);
     
     const responseData = {
-      id: randomVideo.id,
-      url: randomVideo.url,
-      platform: randomVideo.platform,
-      oembedData: oembedData
+      id: video.id,
+      url: video.url,
+      platform: video.platform,
+      embedData: embedData
     };
 
     console.log('Sending video data:', responseData);
@@ -168,7 +136,6 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK' });
 });
 
-// Serve static files in production
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../frontend/build')));
 
@@ -177,7 +144,6 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-// Error handling middleware
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err);
   res.status(500).json({ error: 'Something went wrong!' });
