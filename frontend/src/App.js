@@ -111,7 +111,7 @@ const App = () => {
   }, [video]);
 
   return (
-    <div className="app-container">
+    <div className="app-container flex justify-center">
       <Slider {...settings} className="background-slider">
         {backgroundImages.map((img, index) => (
           <div key={index}>
@@ -119,7 +119,7 @@ const App = () => {
           </div>
         ))}
       </Slider>
-      <div className="content-container">
+      <div className="flex flex-col sm:flex-row justify-between items-center overflow-hidden w-full max-w-[1200px]">
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -144,12 +144,12 @@ const App = () => {
             </AnimatePresence>
           </div>
           {error && <div className="text-red-500 text-center font-semibold mt-4">{error}</div>}
-          <div className="flex justify-between mt-4">
+          <div className="flex gap-2 justify-between mt-4">
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={handleNextVideo}
-              className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-300 ease-in-out flex items-center justify-center"
+              className="bg-blue-500 hover:bg-blue-600 champ-button"
             >
               <FiRefreshCw className="mr-2" /> Next Reel
             </motion.button>
@@ -157,7 +157,7 @@ const App = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={handleOpenLink}
-              className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full focus:outline-none focus:ring-2 focus:ring-green-300 transition duration-300 ease-in-out flex items-center justify-center"
+              className="bg-green-500 hover:bg-green-600 champ-button"
             >
               <FiExternalLink className="mr-2" /> Original
             </motion.button>
@@ -165,15 +165,15 @@ const App = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={handleShare}
-              className="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-300 transition duration-300 ease-in-out flex items-center justify-center"
+              className="bg-purple-500 hover:bg-purple-600 champ-button"
             >
               <FiShare2 className="mr-2" /> Share
             </motion.button>
           </div>
         </motion.div>
-        <footer className="text-center text-gray-600 mt-8">
-          <p>Made with ❤️ by <a href="https://x.com/manan_0308" target="_blank" rel="noopener noreferrer" className="underline">Manan Agarwal</a></p>
-          <p className="mt-2">All credits to original owners. This is just made for reliving the greatest night Indian cricket saw in a long time.</p>
+        <footer className="text-center backdrop-blur-lg p-2 w-full lg:w-[500px]">
+          <p className='text-medium invert grayscale brightness-[1.3] contrast-[9000] mix-blend-luminosity opacity-[.95]'>Made with ❤️ by <a href="https://x.com/manan_0308" target="_blank" rel="noopener noreferrer" className="underline">Manan Agarwal</a></p>
+          <p className="mt-2 invert grayscale brightness-[1.3] contrast-[9000] mix-blend-luminosity opacity-[.95]">All credits to original owners. This is just made for reliving the greatest night Indian cricket saw in a long time.</p>
         </footer>
       </div>
     </div>
