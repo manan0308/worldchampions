@@ -12,7 +12,7 @@ const rateLimit = require('express-rate-limit');
 const app = express();
 const cache = new NodeCache({ stdTTL: 3600, checkperiod: 120 });
 
-const allowedOrigins = ['http://localhost:3000', 'https://cricket-reels-27bad7c1686b.herokuapp.com'];
+const allowedOrigins = ['http://localhost:3000', 'https://cricket-reels-27bad7c1686b.herokuapp.com' , 'https://champions.mananagarwal.in'];
 
 app.use(cors({
   origin: (origin, callback) => {
@@ -101,8 +101,8 @@ async function getEmbedData(url) {
 app.get('/api/video', async (req, res) => {
   console.log('Received request for /api/video');
   try {
-    const videoIndex = parseInt(req.query.index) || 0;
-    const video = videos[videoIndex] || videos[Math.floor(Math.random() * videos.length)];
+    const videoIndex = parseInt(req.query.index) || 0; // Read the 'index' query parameter
+    const video = videos[videoIndex] || videos[Math.floor(Math.random() * videos.length)]; // Select the video based on the index
     console.log('Selected video:', video);
 
     if (!video || !video.url) {

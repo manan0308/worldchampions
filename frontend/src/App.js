@@ -38,27 +38,29 @@ const App = () => {
   const [video, setVideo] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentVideoIndex, setCurrentVideoIndex] = useState(0); // Add this line
   const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5002';
 
-  const fetchVideo = useCallback(async (index = null) => {
-    console.log('Fetching video from:', `${apiUrl}/api/video`);
+  const fetchVideo = useCallback(async () => {
+    console.log('Fetching video from:', `${apiUrl}/api/video?index=${currentVideoIndex}`); // Update this line
     setIsLoading(true);
     setError(null);
     try {
-      const response = await axios.get(`${apiUrl}/api/video${index !== null ? `?index=${index}` : ''}`, { withCredentials: true });
+      const response = await axios.get(`${apiUrl}/api/video?index=${currentVideoIndex}`, { withCredentials: true }); // Update this line
       console.log('Received video data:', response.data);
       if (!response.data || (!response.data.embedData && !response.data.url)) {
         console.log('Invalid video data received:', response.data);
         setError('Invalid video data received');
       } else {
         setVideo(response.data);
+        setCurrentVideoIndex(prevIndex => prevIndex + 1); // Add this line
       }
     } catch (err) {
       console.error('Error fetching video:', err.response?.data || err.message);
       setError('Failed to load video. Please try again.');
     }
     setIsLoading(false);
-  }, [apiUrl]);
+  }, [apiUrl, currentVideoIndex]);
 
   useEffect(() => {
     fetchVideo(0);
