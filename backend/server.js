@@ -30,9 +30,9 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-inline'", "https://www.instagram.com", "https://*.cdninstagram.com"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://www.instagram.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://www.instagram.com", "https://fonts.googleapis.com"], // Add Google Fonts domain here
       imgSrc: ["'self'", "data:", "https:", "https://*.cdninstagram.com"],
-      fontSrc: ["'self'", "data:", "https://www.instagram.com"],
+      fontSrc: ["'self'", "data:", "https://www.instagram.com", "https://fonts.gstatic.com"], // Add Google Fonts domain here
       connectSrc: ["'self'", "https://cricket-reels-27bad7c1686b.herokuapp.com", "http://localhost:5002", "https://api.instagram.com", "https://*.cdninstagram.com"],
       frameSrc: ["'self'", "https://www.instagram.com", "https://*.cdninstagram.com"],
       mediaSrc: ["'self'", "https://*.cdninstagram.com"]
