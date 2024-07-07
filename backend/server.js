@@ -29,11 +29,11 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://www.instagram.com", "https://*.cdninstagram.com"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://www.instagram.com", "https://fonts.googleapis.com"], // Add Google Fonts domain here
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://www.instagram.com", "https://*.cdninstagram.com", "https://www.googletagmanager.com", "https://www.google-analytics.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://www.instagram.com", "https://fonts.googleapis.com"],
       imgSrc: ["'self'", "data:", "https:", "https://*.cdninstagram.com"],
-      fontSrc: ["'self'", "data:", "https://www.instagram.com", "https://fonts.gstatic.com"], // Add Google Fonts domain here
-      connectSrc: ["'self'", "https://cricket-reels-27bad7c1686b.herokuapp.com", "http://localhost:5002", "https://api.instagram.com", "https://*.cdninstagram.com"],
+      fontSrc: ["'self'", "data:", "https://www.instagram.com", "https://fonts.gstatic.com"],
+      connectSrc: ["'self'", "https://cricket-reels-27bad7c1686b.herokuapp.com", "http://localhost:5002", "https://api.instagram.com", "https://*.cdninstagram.com", "https://www.google-analytics.com"],
       frameSrc: ["'self'", "https://www.instagram.com", "https://*.cdninstagram.com"],
       mediaSrc: ["'self'", "https://*.cdninstagram.com"]
     }
