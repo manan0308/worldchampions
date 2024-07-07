@@ -138,12 +138,12 @@ const App = () => {
           </div>
         ))}
       </Slider>
-      <div className="flex flex-col sm:flex-row items-stretch justify-between w-full max-w-[1200px] pt-4">
+      <div className="flex flex-col sm:flex-row items-stretch justify-between w-full h-[100dvh] max-w-[1200px] pt-4">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="bg-white rounded-2xl shadow-2xl p-4 sm:p-8 max-w-md mx-auto"
+          className="bg-white rounded-2xl shadow-2xl p-4 sm:p-8 max-w-md m-auto"
         >
           <div className="relative">
             {isLoading && <div>Loading...</div>}
