@@ -138,7 +138,7 @@ const App = () => {
           </div>
         ))}
       </Slider>
-      <div className="flex flex-col sm:flex-row items-stretch justify-between w-full max-w-[1200px] h-[100dvh] pt-4">
+      <div className="flex flex-col sm:flex-row items-stretch justify-between w-full max-w-[1200px] pt-4">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
