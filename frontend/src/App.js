@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import ReactGA from 'react-ga';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiRefreshCw, FiExternalLink, FiShare2 } from 'react-icons/fi';
 import Slider from "react-slick";
@@ -34,6 +35,8 @@ const settings = {
   fade: true
 };
 
+ReactGA.initialize('G-TXVRCXZV05');
+
 const App = () => {
   const [video, setVideo] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -52,10 +55,19 @@ const App = () => {
         setError('Invalid video data received');
       } else {
         setVideo(response.data);
+        ReactGA.event({
+          category: 'Video',
+          action: 'Fetch',
+          label: response.data.id,
+        });
       }
     } catch (err) {
       console.error('Error fetching video:', err.response?.data || err.message);
       setError('Failed to load video. Please try again.');
+      ReactGA.exception({
+        description: `Video fetch error: ${err.message}`,
+        fatal: false,
+      });
     }
     setIsLoading(false);
   }, [apiUrl]);
@@ -67,11 +79,21 @@ const App = () => {
 
   const handleNextVideo = useCallback(() => {
     fetchVideo();
+    ReactGA.event({
+      category: 'Button',
+      action: 'Click',
+      label: 'Next Reel',
+    });
   }, [fetchVideo]);
 
   const handleOpenLink = useCallback(() => {
     if (video) {
       window.open(video.url, '_blank');
+      ReactGA.event({
+        category: 'Button',
+        action: 'Click',
+        label: 'Open Original',
+      });
     }
   }, [video]);
 
@@ -86,6 +108,11 @@ const App = () => {
       const shareUrl = `https://twitter.com/intent/tweet?text=Relive%20the%20greatest%20night%20of%20Indian%20cricket!&url=${encodeURIComponent(window.location.href)}`;
       window.open(shareUrl, '_blank');
     }
+    ReactGA.event({
+      category: 'Button',
+      action: 'Click',
+      label: 'Share',
+    });
   }, []);
 
   const renderVideoContent = useCallback(() => {
