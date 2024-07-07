@@ -38,30 +38,33 @@ const App = () => {
   const [video, setVideo] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5002';
 
-  const fetchVideo = useCallback(async () => {
-    console.log('Fetching video from:', `${apiUrl}/api/video?index=${currentVideoIndex}`);
+  const fetchVideo = useCallback(async (videoId = null) => {
+    console.log('Fetching video from:', `${apiUrl}/api/video${videoId ? `?videoId=${videoId}` : ''}`);
     setIsLoading(true);
     setError(null);
     try {
-      const response = await axios.get(`${apiUrl}/api/video?index=${currentVideoIndex}`, { withCredentials: true });
+      const response = await axios.get(`${apiUrl}/api/video${videoId ? `?videoId=${videoId}` : ''}`, { withCredentials: true });
       console.log('Received video data:', response.data);
       if (!response.data || (!response.data.embedData && !response.data.url)) {
         console.log('Invalid video data received:', response.data);
         setError('Invalid video data received');
       } else {
         setVideo(response.data);
-        setCurrentVideoIndex(prevIndex => prevIndex + 1);
       }
     } catch (err) {
       console.error('Error fetching video:', err.response?.data || err.message);
       setError('Failed to load video. Please try again.');
     }
     setIsLoading(false);
-  }, [apiUrl, currentVideoIndex]);
-  
+  }, [apiUrl]);
+
+  useEffect(() => {
+    const initialVideoId = 2; // Set the desired initial video ID here
+    fetchVideo(initialVideoId);
+  }, [fetchVideo]);
+
   const handleNextVideo = useCallback(() => {
     fetchVideo();
   }, [fetchVideo]);
@@ -169,10 +172,13 @@ const App = () => {
             </motion.button>
           </div>
         </motion.div>
-        <footer className="text-center backdrop-blur-lg p-2 w-full lg:w-[500px]">
+        <div className="flex flex-col items-center justify-center gap-4">
+        <footer className="text-center bg-[#d4d4d422] backdrop-blur-lg p-4 w-full lg:w-[600px] rounded-t-3xl sm:rounded-b-3xl">
+          <h1 className="text-xl font-medium sm:text-4xl text-white pb-2 sm:pb-4">Champions: T20 World Cup 🇮🇳</h1>
           <p className='text-medium invert grayscale brightness-[1.3] contrast-[9000] mix-blend-luminosity opacity-[.95]'>Made with ❤️ by <a href="https://x.com/manan_0308" target="_blank" rel="noopener noreferrer" className="underline">Manan Agarwal</a></p>
           <p className="mt-2 invert grayscale brightness-[1.3] contrast-[9000] mix-blend-luminosity opacity-[.95]">All credits to original owners. This is just made for reliving the greatest night Indian cricket saw in a long time.</p>
         </footer>
+        </div>
       </div>
     </div>
   );

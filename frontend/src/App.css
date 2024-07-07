@@ -58,7 +58,7 @@ iframe {
 /* New styles for the background images and content container */
 .app-container {
   position: relative;
-  height: 100vh;
+  height: 100%;
   overflow: hidden;
 }
 

@@ -57,7 +57,6 @@ app.use('/api/', limiter);
 const videos = [
   { id: 1, url: 'https://www.instagram.com/reel/C8wdSflxpEB/', platform: 'instagram' },
   { id: 2, url: 'https://www.instagram.com/reel/C8z8-McSV5T/', platform: 'instagram' },
-  { id: 3, url: 'https://www.instagram.com/reel/C80_wWOyNGT/', platform: 'instagram' },
   { id: 4, url: 'https://www.instagram.com/reel/C8z74PJyES-/', platform: 'instagram' },
   { id: 5, url: 'https://www.instagram.com/reel/C8z0F7CyxO6/', platform: 'instagram' },
   { id: 6, url: 'https://www.instagram.com/reel/C8zq64uIDmQ/', platform: 'instagram' },
@@ -101,8 +100,19 @@ async function getEmbedData(url) {
 app.get('/api/video', async (req, res) => {
   console.log('Received request for /api/video');
   try {
-    const videoIndex = parseInt(req.query.index) || 0; // Read the 'index' query parameter
-    const video = videos[videoIndex] || videos[Math.floor(Math.random() * videos.length)]; // Select the video based on the index
+    const videoId = req.query.videoId ? parseInt(req.query.videoId) : null;
+    let video;
+    
+    if (videoId !== null) {
+      video = videos.find(v => v.id === videoId);
+      if (!video) {
+        console.log(`Video with ID ${videoId} not found`);
+        return res.status(404).json({ error: 'Video not found' });
+      }
+    } else {
+      video = videos[Math.floor(Math.random() * videos.length)];
+    }
+    
     console.log('Selected video:', video);
 
     if (!video || !video.url) {
